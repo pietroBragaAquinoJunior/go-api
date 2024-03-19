@@ -10,15 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type Album struct {
-	gorm.Model
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
-}
-
 func main() {
-	db := gormConnection()
+	db := gormSetup()
 	r := ginSetup(db)
 	r.Run("localhost:8080")
 }

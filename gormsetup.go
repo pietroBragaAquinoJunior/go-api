@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func gormConnection() *gorm.DB {
+func gormSetup() *gorm.DB {
 	dsn := "root:172983456@tcp(localhost:3306)/goapi?charset=utf8&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
