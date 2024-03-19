@@ -17,3 +17,8 @@ type User struct {
 	Usuario string `json:"usuario"`
 	Senha   string `json:"senha"`
 }
+
+
+type loginResponse struct {
+	Token string `json:"token"`
+}
