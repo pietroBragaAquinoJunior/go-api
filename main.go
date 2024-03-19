@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -9,7 +8,6 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"github.com/markbates/goth"
@@ -29,7 +27,7 @@ func init() {
 
 func main() {
 	goth.UseProviders(
-		discord.New(os.Getenv("DISCORD_KEY"), os.Getenv("DISCORD_SECRET"), "http://localhost:3000/auth/discord/callback", discord.ScopeIdentify, discord.ScopeEmail),
+		discord.New(os.Getenv("DISCORD_KEY"), os.Getenv("DISCORD_SECRET"), "http://localhost:8080/auth/callback?provider=discord", discord.ScopeIdentify, discord.ScopeEmail),
 	)
 
 	m := map[string]string{
@@ -43,51 +41,19 @@ func main() {
 
 	providerIndex := &ProviderIndex{Providers: keys, ProvidersMap: m}
 
-	p := pat.New()
-	p.Get("/auth/{provider}/callback", func(res http.ResponseWriter, req *http.Request) {
-		user, err := gothic.CompleteUserAuth(res, req)
-		if err != nil {
-			fmt.Fprintln(res, err)
-			return
-		}
-		t, _ := template.New("foo").Parse(userTemplate)
-		t.Execute(res, user)
-	})
+	db := gormSetup()
 
-	p.Get("/logout/{provider}", func(res http.ResponseWriter, req *http.Request) {
-		gothic.Logout(res, req)
-		res.Header().Set("Location", "/")
-		res.WriteHeader(http.StatusTemporaryRedirect)
-	})
+	r := ginSetup(db, providerIndex)
 
-	p.Get("/auth/{provider}", func(res http.ResponseWriter, req *http.Request) {
-		if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
-			t, _ := template.New("foo").Parse(userTemplate)
-			t.Execute(res, gothUser)
-		} else {
-			gothic.BeginAuthHandler(res, req)
-		}
-	})
-
-	p.Get("/", func(res http.ResponseWriter, req *http.Request) {
-		t, _ := template.New("foo").Parse(indexTemplate)
-		t.Execute(res, providerIndex)
-	})
-
-	log.Println("listening on localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", p))
-
-	//db := gormSetup()
-	//r := ginSetup(db)
-	//r.Run("localhost:8080")
+	r.Run(":8080")
 }
 
 var indexTemplate = `{{range $key,$value:=.Providers}}
-    <p><a href="/auth/{{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
+    <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
 {{end}}`
 
 var userTemplate = `
-<p><a href="/logout/{{.Provider}}">logout</a></p>
+<p><a href="/logout?provider={{.Provider}}">logout</a></p>
 <p>Name: {{.Name}} [{{.LastName}}, {{.FirstName}}]</p>
 <p>Email: {{.Email}}</p>
 <p>NickName: {{.NickName}}</p>
@@ -124,4 +90,41 @@ func getAlbumByID(c *gin.Context, db *gorm.DB) {
 		return
 	}
 	c.JSON(http.StatusOK, album)
+}
+
+// Função de retorno de chamada para o provedor Discord
+func providerCallback(c *gin.Context) {
+	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	t, _ := template.New("user").Parse(userTemplate)
+
+
+
+	
+	t.Execute(c.Writer, user)
+}
+
+// Função para fazer logout do provedor OAuth
+func oauthLogout(c *gin.Context) {
+	gothic.Logout(c.Writer, c.Request)
+	c.Redirect(http.StatusTemporaryRedirect, "/")
+}
+
+// Função para autenticar o usuário com o provedor OAuth
+func authProvider(c *gin.Context) {
+	if gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
+		t, _ := template.New("user").Parse(userTemplate)
+		t.Execute(c.Writer, gothUser)
+	} else {
+		gothic.BeginAuthHandler(c.Writer, c.Request)
+	}
+}
+
+// Função para renderizar o template de login com os provedores disponíveis
+func getTemplate(c *gin.Context, pindex *ProviderIndex) {
+	t, _ := template.New("index").Parse(indexTemplate)
+	t.Execute(c.Writer, pindex)
 }

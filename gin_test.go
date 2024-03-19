@@ -19,8 +19,9 @@ import (
 var router *gin.Engine
 
 func TestMain(m *testing.M) {
+	var providerIndex *ProviderIndex
 	db := gormSetup()
-	router = ginSetup(db)
+	router = ginSetup(db, providerIndex)
 	code := m.Run()
 	os.Exit(code)
 }
