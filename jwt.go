@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -54,6 +55,11 @@ func login(c *gin.Context, db *gorm.DB) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
 	claims["user"] = user.ID // Aqui você pode usar o ID do usuário, por exemplo
+
+	// Define o tempo de expiração do token
+	expirationTime := time.Now().Add(24 * time.Hour) // Expira em 24 horas
+	claims["exp"] = expirationTime.Unix()
+
 	// Assina o token com a chave secreta
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {

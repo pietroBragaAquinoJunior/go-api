@@ -4,3 +4,4 @@
 - [x] Conexão com banco Mysql usando Gorm - Concluída com sucesso.
 - [x] Criação de Testes usando HttpTest - Concluída com sucesso.
 - [x] Separação das responsabilidades em arquivos diferentes -  Concluída com sucesso.
+- [x] Validação com Jwt -  Concluída com sucesso.
