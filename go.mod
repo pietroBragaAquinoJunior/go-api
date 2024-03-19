@@ -6,11 +6,24 @@ require (
 	github.com/99designs/gqlgen v0.17.45
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.8.0
+	github.com/gorilla/pat v1.0.2
+	github.com/gorilla/sessions v1.1.1
+	github.com/joho/godotenv v1.4.0
+	github.com/markbates/goth v1.79.0
 	github.com/prisma/prisma-client-go v0.17.0
 	github.com/stretchr/testify v1.9.0
 	gorm.io/driver/mysql v1.5.5
 	gorm.io/driver/sqlite v1.5.5
 	gorm.io/gorm v1.25.8
+)
+
+require (
+	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/gorilla/context v1.1.2 // indirect
+	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
+	golang.org/x/oauth2 v0.17.0 // indirect
+	google.golang.org/appengine v1.6.8 // indirect
 )
 
 require (

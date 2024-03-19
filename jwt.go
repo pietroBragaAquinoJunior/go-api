@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 )
 
 // sha-256
-var secretKey = []byte("teste")
+var secretKey = []byte(os.Getenv("TOKEN_JWT_SECRET"))
 
 func authMiddleware(c *gin.Context) {
 	// Extrai o token JWT do cabeçalho "Authorization"

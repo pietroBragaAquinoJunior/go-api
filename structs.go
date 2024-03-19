@@ -18,7 +18,11 @@ type User struct {
 	Senha   string `json:"senha"`
 }
 
-
 type loginResponse struct {
 	Token string `json:"token"`
+}
+
+type ProviderIndex struct {
+	Providers    []string
+	ProvidersMap map[string]string
 }
