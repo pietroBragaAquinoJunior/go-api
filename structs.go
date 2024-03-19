@@ -10,3 +10,10 @@ type Album struct {
 	Artist string  `json:"artist"`
 	Price  float64 `json:"price"`
 }
+
+type User struct {
+	gorm.Model
+	Nome    string `json:"nome"`
+	Usuario string `json:"usuario"`
+	Senha   string `json:"senha"`
+}

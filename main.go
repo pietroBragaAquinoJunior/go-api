@@ -1,12 +1,9 @@
 package main
 
 import (
-	//GIN
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	//GORM
 	"gorm.io/gorm"
 )
 
