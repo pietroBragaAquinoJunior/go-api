@@ -84,11 +84,11 @@ func salvarUsuarioOauth(c *gin.Context, gothUser goth.User, db *gorm.DB) {
 
 	// Verifica se o usuário já existe no banco de dados
 	if err := db.Where("oauth_user_id = ?", gothUser.UserID).First(&usuarioEncontradoBanco).Error; err != nil {
-		// Se não existir, cria um novo usuário
-		db.Create(usuarioCriado)
+		usuarioCriado.ID = usuarioEncontradoBanco.ID
+		db.Save(usuarioCriado)
+
 	} else {
-		// Se existir, atualiza os dados do usuário existente
-		db.Model(&usuarioEncontradoBanco).Updates(usuarioCriado)
+		db.Create(usuarioCriado)
 	}
 }
 
