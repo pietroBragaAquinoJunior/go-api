@@ -4,9 +4,10 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
@@ -54,10 +55,9 @@ func login(c *gin.Context, db *gorm.DB) {
 
 	gerarERetornarTokenJwt(c, strconv.Itoa(int(user.ID)))
 
-
 }
 
-func gerarERetornarTokenJwt(c *gin.Context, idUsuario string){
+func gerarERetornarTokenJwt(c *gin.Context, idUsuario string) {
 	// Se o usuário for autenticado com sucesso, gere um token JWT
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
@@ -75,9 +75,8 @@ func gerarERetornarTokenJwt(c *gin.Context, idUsuario string){
 		return
 	}
 	// Retorna o token JWT para o cliente
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{"tokenJWT": tokenString})
 }
-
 
 func authenticateUser(usuario string, senha string, db *gorm.DB) (User, error) {
 	var user User
