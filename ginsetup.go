@@ -22,7 +22,7 @@ func ginSetup(db *gorm.DB, pindex *ProviderIndex) *gin.Engine {
 	router.POST("/login", func(c *gin.Context) { login(c, db) })
 
 	//OAUTH
-	router.GET("/auth/callback", func(c *gin.Context) { providerCallback(c) })
+	router.GET("/auth/callback", func(c *gin.Context) { providerCallback(c,db) })
 	router.GET("/logout", func(c *gin.Context) { oauthLogout(c) })
 	router.GET("/auth", func(c *gin.Context) { authProvider(c) })
 	router.GET("/", func(c *gin.Context) { getTemplate(c, pindex) })

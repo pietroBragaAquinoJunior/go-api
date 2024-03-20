@@ -2,13 +2,15 @@ package main
 
 import (
 	"html/template"
-	"os"
-	"github.com/markbates/goth"
-	"sort"
-	"github.com/markbates/goth/providers/discord"
-	"github.com/markbates/goth/gothic"
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
+	"sort"
+
+	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/discord"
+	"gorm.io/gorm"
 )
 
 func gothSetup() *ProviderIndex {
@@ -25,7 +27,6 @@ func gothSetup() *ProviderIndex {
 	sort.Strings(keys)
 	return &ProviderIndex{Providers: keys, ProvidersMap: m}
 }
-
 
 var indexTemplate = `{{range $key,$value:=.Providers}}
     <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
@@ -46,7 +47,7 @@ var userTemplate = `
 `
 
 // Função de retorno de chamada para o provedor Discord
-func providerCallback(c *gin.Context) {
+func providerCallback(c *gin.Context, db *gorm.DB) {
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -59,6 +60,36 @@ func providerCallback(c *gin.Context) {
 
 	testarTokenDiscordGerarJwt(c, user)
 
+	salvarUsuarioOauth(c, user, db)
+
+}
+
+func salvarUsuarioOauth(c *gin.Context, gothUser goth.User, db *gorm.DB) {
+
+	var usuarioEncontradoBanco User
+
+	usuarioCriado := &User{
+		OauthUserId:  gothUser.UserID,
+		Nome:         gothUser.Name,
+		Provedor:     gothUser.Provider,
+		Email:        gothUser.Email,
+		NomeNick:     gothUser.NickName,
+		Lugar:        gothUser.Location,
+		UrlAvatar:    gothUser.AvatarURL,
+		Descricao:    gothUser.Description,
+		AccessToken:  gothUser.AccessToken,
+		ExpiresAt:    gothUser.ExpiresAt,
+		RefreshToken: gothUser.RefreshToken,
+	}
+
+	// Verifica se o usuário já existe no banco de dados
+	if err := db.Where("oauth_user_id = ?", gothUser.UserID).First(&usuarioEncontradoBanco).Error; err != nil {
+		// Se não existir, cria um novo usuário
+		db.Create(usuarioCriado)
+	} else {
+		// Se existir, atualiza os dados do usuário existente
+		db.Model(&usuarioEncontradoBanco).Updates(usuarioCriado)
+	}
 }
 
 // Função para fazer logout do provedor OAuth

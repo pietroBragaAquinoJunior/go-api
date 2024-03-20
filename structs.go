@@ -2,6 +2,7 @@ package main
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 type Album struct {
@@ -16,6 +17,18 @@ type User struct {
 	Nome    string `json:"nome"`
 	Usuario string `json:"usuario"`
 	Senha   string `json:"senha"`
+
+	// oauth
+	OauthUserId string `json:"oauth_user_id"`
+	Provedor     string `json:"provedor"`
+	Email        string `json:"email"`
+	NomeNick     string `json:"nome_nick"`
+	Lugar        string `json:"lugar"`
+	UrlAvatar    string `json:"url_avatar"`
+	Descricao    string `json:"descricao"`
+	AccessToken  string `json:"acess_token"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type loginResponse struct {
