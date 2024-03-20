@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 	"time"
-
+	"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
@@ -51,11 +51,18 @@ func login(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
 	}
+
+	gerarERetornarTokenJwt(c, strconv.Itoa(int(user.ID)))
+
+
+}
+
+func gerarERetornarTokenJwt(c *gin.Context, idUsuario string){
 	// Se o usuário for autenticado com sucesso, gere um token JWT
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
-	claims["user"] = user.ID // Aqui você pode usar o ID do usuário, por exemplo
+	claims["user"] = idUsuario // Aqui você pode usar o ID do usuário, por exemplo
 
 	// Define o tempo de expiração do token
 	expirationTime := time.Now().Add(24 * time.Hour) // Expira em 24 horas
@@ -70,6 +77,7 @@ func login(c *gin.Context, db *gorm.DB) {
 	// Retorna o token JWT para o cliente
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
+
 
 func authenticateUser(usuario string, senha string, db *gorm.DB) (User, error) {
 	var user User

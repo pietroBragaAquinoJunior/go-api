@@ -99,12 +99,13 @@ func providerCallback(c *gin.Context) {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	t, _ := template.New("user").Parse(userTemplate)
+	//t, _ := template.New("user").Parse(userTemplate)
+	//t.Execute(c.Writer, user)
 
+	// TENHO INFORMAÇÕES DO USUARIO AQUI
 
+	testarTokenDiscordGerarJwt(c, user)
 
-	
-	t.Execute(c.Writer, user)
 }
 
 // Função para fazer logout do provedor OAuth
@@ -127,4 +128,43 @@ func authProvider(c *gin.Context) {
 func getTemplate(c *gin.Context, pindex *ProviderIndex) {
 	t, _ := template.New("index").Parse(indexTemplate)
 	t.Execute(c.Writer, pindex)
+}
+
+func testarTokenDiscordGerarJwt(c *gin.Context, user goth.User) {
+
+	accessToken := user.AccessToken
+
+	if accessToken == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token de acesso não fornecido"})
+		return
+	}
+
+	url := "https://discord.com/api/v9/users/@me"
+	req, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar requisição"})
+		return
+	}
+
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao fazer requisição"})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+
+		// TOKEN VÁLIDO, GERAR JWT.
+		gerarERetornarTokenJwt(c, user.UserID)
+		c.Redirect(http.StatusTemporaryRedirect, "/")
+		
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de acesso inválido"})
+	}
+
 }
