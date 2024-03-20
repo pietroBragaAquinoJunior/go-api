@@ -78,17 +78,17 @@ func salvarUsuarioOauth(c *gin.Context, gothUser goth.User, db *gorm.DB) {
 		UrlAvatar:    gothUser.AvatarURL,
 		Descricao:    gothUser.Description,
 		AccessToken:  gothUser.AccessToken,
-		ExpiresAt:    gothUser.ExpiresAt,
+		ExpiresAt:    &gothUser.ExpiresAt,
 		RefreshToken: gothUser.RefreshToken,
 	}
 
 	// Verifica se o usuário já existe no banco de dados
 	if err := db.Where("oauth_user_id = ?", gothUser.UserID).First(&usuarioEncontradoBanco).Error; err != nil {
-		usuarioCriado.ID = usuarioEncontradoBanco.ID
-		db.Save(usuarioCriado)
-
-	} else {
 		db.Create(usuarioCriado)
+	} else {
+		usuarioCriado.ID = usuarioEncontradoBanco.ID
+		usuarioCriado.CreatedAt = usuarioEncontradoBanco.CreatedAt
+		db.Save(usuarioCriado)
 	}
 }
 
