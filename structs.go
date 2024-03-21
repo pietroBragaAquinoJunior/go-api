@@ -39,4 +39,5 @@ type loginResponse struct {
 type ProviderIndex struct {
 	Providers    []string
 	ProvidersMap map[string]string
+	Autenticado bool
 }

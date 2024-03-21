@@ -1,17 +1,18 @@
 package main
 
 import (
-
+	"html/template"
 	"net/http"
 	"os"
 	"sort"
-	"html/template"
+
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/discord"
 	"gorm.io/gorm"
-	"github.com/gorilla/sessions"
 )
 
 func gothSetup() *ProviderIndex {
@@ -26,6 +27,7 @@ func gothSetup() *ProviderIndex {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+
 	return &ProviderIndex{Providers: keys, ProvidersMap: m}
 }
 
@@ -93,6 +95,23 @@ func authProvider(c *gin.Context) {
 
 // Função para renderizar o template de login com os provedores disponíveis
 func getTemplate(c *gin.Context, pindex *ProviderIndex) {
+
+	session := getGothSession(c.Request)
+	tokenString, ok := session.Values["jwt_token"].(string)
+	if ok && tokenString != "" {
+		// Analisa o token JWT
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return secretKey, nil
+		})
+		if err == nil && token.Valid {
+			pindex.Autenticado = true
+		} else {
+			pindex.Autenticado = false
+		}
+	} else {
+		pindex.Autenticado = false
+	}
+
 	t, _ := template.New("index").Parse(indexTemplate)
 	t.Execute(c.Writer, pindex)
 }
@@ -125,8 +144,7 @@ func testarTokenDiscordGerarJwt(c *gin.Context, user goth.User) {
 	}
 }
 
-
 func getGothSession(r *http.Request) *sessions.Session {
-    session, _ := gothic.Store.Get(r, "user-session")
-    return session
+	session, _ := gothic.Store.Get(r, "user-session")
+	return session
 }

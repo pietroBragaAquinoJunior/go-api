@@ -76,6 +76,7 @@ var indexTemplate = `
 			<a class="anchor" style="font-size:20px;" href="https://github.com/pietroBragaAquinoJunior" target="_blank">Criado por Piêtro Braga Aquino Júnior</a>
 		</div>
 
+		{{if not .Autenticado}}
 		<div class="container colorido bom-espaco" >
 			<h2 style="margin-bottom:30px">Entrar com login e senha</h2>
 			<form style="width:100%" action="/login" method="post">
@@ -95,6 +96,13 @@ var indexTemplate = `
 			{{end}}
 			</div>
 		</div>
+		{{end}}
+		{{if .Autenticado}}
+		<div>
+		  <p>Você foi autenticado com sucesso!</p>
+		  <a href="/api/albums">Consultar Api Get Albums</a>
+		</div>
+		{{end}}
     </div>
 </body>
 </html>
