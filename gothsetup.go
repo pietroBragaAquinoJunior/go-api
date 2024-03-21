@@ -60,11 +60,11 @@ func providerCallback(c *gin.Context, db *gorm.DB) {
 
 	testarTokenDiscordGerarJwt(c, user)
 
-	salvarUsuarioOauth(c, user, db)
+	salvarUsuarioOauth(user, db)
 
 }
 
-func salvarUsuarioOauth(c *gin.Context, gothUser goth.User, db *gorm.DB) {
+func salvarUsuarioOauth(gothUser goth.User, db *gorm.DB) {
 
 	var usuarioEncontradoBanco User
 
