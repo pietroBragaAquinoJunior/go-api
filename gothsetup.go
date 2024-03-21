@@ -1,11 +1,11 @@
 package main
 
 import (
-	"html/template"
+
 	"net/http"
 	"os"
 	"sort"
-
+	"html/template"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -28,24 +28,6 @@ func gothSetup() *ProviderIndex {
 	sort.Strings(keys)
 	return &ProviderIndex{Providers: keys, ProvidersMap: m}
 }
-
-var indexTemplate = `{{range $key,$value:=.Providers}}
-    <p><a href="/auth?provider={{$value}}">Log in with {{index $.ProvidersMap $value}}</a></p>
-{{end}}`
-
-var userTemplate = `
-<p><a href="/logout?provider={{.Provider}}">logout</a></p>
-<p>Name: {{.Name}} [{{.LastName}}, {{.FirstName}}]</p>
-<p>Email: {{.Email}}</p>
-<p>NickName: {{.NickName}}</p>
-<p>Location: {{.Location}}</p>
-<p>AvatarURL: {{.AvatarURL}} <img src="{{.AvatarURL}}"></p>
-<p>Description: {{.Description}}</p>
-<p>UserID: {{.UserID}}</p>
-<p>AccessToken: {{.AccessToken}}</p>
-<p>ExpiresAt: {{.ExpiresAt}}</p>
-<p>RefreshToken: {{.RefreshToken}}</p>
-`
 
 // Função de retorno de chamada para o provedor Discord
 func providerCallback(c *gin.Context, db *gorm.DB) {
@@ -138,7 +120,6 @@ func testarTokenDiscordGerarJwt(c *gin.Context, user goth.User) {
 	if resp.StatusCode == http.StatusOK {
 		// TOKEN VÁLIDO, GERAR JWT.
 		gerarERetornarTokenJwt(c, user.UserID)
-		c.Redirect(http.StatusTemporaryRedirect, "/")
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de acesso inválido"})
 	}

@@ -100,6 +100,8 @@ func gerarERetornarTokenJwt(c *gin.Context, idUsuario string) {
 		return
 	}
 
+	c.Redirect(http.StatusPermanentRedirect, "/")
+
 	c.JSON(http.StatusOK, gin.H{"tokenJWT": tokenString})
 }
 

@@ -21,5 +21,6 @@ func main() {
 	providerIndex := gothSetup()
 	db := gormSetup()
 	r := ginSetup(db, providerIndex)
+	r.Static("/public", "./public")
 	r.Run(":8080")
 }
