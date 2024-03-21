@@ -17,19 +17,17 @@ func ginSetup(db *gorm.DB, pindex *ProviderIndex) *gin.Engine {
 	protected.GET("/albums/:id", func(c *gin.Context) { getAlbumByID(c, db) })
 	protected.POST("/albums", func(c *gin.Context) { postAlbum(c, db) })
 
-
 	// JWT
 	router.POST("/login", func(c *gin.Context) { login(c, db) })
 
 	//OAUTH
-	router.GET("/auth/callback", func(c *gin.Context) { providerCallback(c,db) })
+	router.GET("/auth/callback", func(c *gin.Context) { providerCallback(c, db) })
 	router.GET("/logout", func(c *gin.Context) { oauthLogout(c) })
 	router.GET("/auth", func(c *gin.Context) { authProvider(c) })
 	router.GET("/", func(c *gin.Context) { getTemplate(c, pindex) })
 
 	return router
 }
-
 
 func getAlbums(c *gin.Context, db *gorm.DB) {
 	var albums []Album
