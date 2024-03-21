@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -19,6 +20,18 @@ var secretKey = []byte(os.Getenv("TOKEN_JWT_SECRET"))
 func authMiddleware(c *gin.Context) {
 	// Extrai o token JWT do cabeçalho "Authorization"
 	tokenString := extractTokenFromHeader(c)
+
+	if tokenString == "" {
+		session := getGothSession(c.Request)
+		token, ok := session.Values["jwt_token"].(string)
+		tokenString = token
+		if !ok || tokenString == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Não autorizado"})
+			c.Abort()
+			return
+		}
+	}
+
 	if tokenString == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token não fornecido"})
 		c.Abort()
@@ -74,7 +87,19 @@ func gerarERetornarTokenJwt(c *gin.Context, idUsuario string) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Falha ao gerar token"})
 		return
 	}
-	// Retorna o token JWT para o cliente
+
+	session := getGothSession(c.Request)
+	// Armazene a string na sessão
+	session.Values["jwt_token"] = tokenString
+
+	// Salve a sessão
+	err2 := session.Save(c.Request, c.Writer)
+	if err2 != nil {
+		// Lidar com o erro, se houver
+		fmt.Println("Erro ao salvar a sessão:", err)
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"tokenJWT": tokenString})
 }
 
@@ -90,17 +115,15 @@ func authenticateUser(usuario string, senha string, db *gorm.DB) (User, error) {
 }
 
 func extractTokenFromHeader(c *gin.Context) string {
-	// Obtém o cabeçalho "Authorization" da requisição
-	authorizationHeader := c.GetHeader("Authorization")
+	authorizationHeader := c.Request.Header.Get("Authorization")
 	if authorizationHeader == "" {
 		return ""
 	}
-
-	// Divide o cabeçalho "Authorization" para obter o token JWT
-	parts := strings.Split(authorizationHeader, " ")
-	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+	// O cabeçalho de autorização deve estar no formato "Bearer token"
+	tokenString := strings.Split(authorizationHeader, " ")
+	if len(tokenString) != 2 || tokenString[0] != "Bearer" {
 		return ""
 	}
 
-	return parts[1]
+	return tokenString[1]
 }

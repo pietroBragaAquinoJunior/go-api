@@ -11,6 +11,7 @@ import (
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/discord"
 	"gorm.io/gorm"
+	"github.com/gorilla/sessions"
 )
 
 func gothSetup() *ProviderIndex {
@@ -141,4 +142,10 @@ func testarTokenDiscordGerarJwt(c *gin.Context, user goth.User) {
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de acesso inválido"})
 	}
+}
+
+
+func getGothSession(r *http.Request) *sessions.Session {
+    session, _ := gothic.Store.Get(r, "user-session")
+    return session
 }
