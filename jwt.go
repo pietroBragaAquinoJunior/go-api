@@ -52,15 +52,22 @@ func authMiddleware(c *gin.Context) {
 }
 
 func login(c *gin.Context, db *gorm.DB) {
-	var requestBody struct {
-		Usuario string `json:"usuario"`
-		Senha   string `json:"senha"`
-	}
-	if err := c.BindJSON(&requestBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler corpo da requisição"})
-		return
-	}
-	user, err := authenticateUser(requestBody.Usuario, requestBody.Senha, db)
+	/*
+		var requestBody struct {
+			Usuario string
+			Senha   string
+		}
+	*/
+	usuario := c.PostForm("usuario")
+	senha := c.PostForm("senha")
+
+	/*
+		if err := c.BindJSON(&requestBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler corpo da requisição"})
+			return
+		}
+	*/
+	user, err := authenticateUser(usuario, senha, db)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
@@ -100,9 +107,9 @@ func gerarERetornarTokenJwt(c *gin.Context, idUsuario string) {
 		return
 	}
 
-	c.Redirect(http.StatusPermanentRedirect, "/")
+	c.Redirect(http.StatusSeeOther, "/")
 
-	c.JSON(http.StatusOK, gin.H{"tokenJWT": tokenString})
+	//c.JSON(http.StatusOK, gin.H{"tokenJWT": tokenString})
 }
 
 func authenticateUser(usuario string, senha string, db *gorm.DB) (User, error) {

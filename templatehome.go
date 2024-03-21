@@ -11,8 +11,9 @@ var indexTemplate = `
 			box-sizing: border-box;
 			font-family: "Courier New", Courier, monospace;
         }
-		.body{
+		body{
 			font-family: "Courier New", Courier, monospace;
+			background-color: #EAEAEA;
 		}
 		.container{
 			display:flex;
@@ -47,8 +48,6 @@ var indexTemplate = `
 			border:none;
 			background:none;
 		  }
-		
-
 		  .colorido{
 			border-radius:10px;
 			padding-top:7px;
@@ -80,11 +79,11 @@ var indexTemplate = `
 		<div class="container colorido bom-espaco" >
 			<h2 style="margin-bottom:30px">Entrar com login e senha</h2>
 			<form style="width:100%" action="/login" method="post">
-				<label class="fonte-padrao" for="username">Usuário:</label><br>
-				<input style="margin-bottom:10px; width:100%" type="text" id="username" name="username" required><br>
+				<label class="fonte-padrao" for="usuario">Usuário:</label><br>
+				<input style="margin-bottom:10px; width:100%" type="text" id="usuario" name="usuario" required><br>
 		
-				<label class="fonte-padrao" for="password">Senha:</label><br>
-				<input style="margin-bottom:10px; width:100%" type="password" id="password" name="password" required><br><br>
+				<label class="fonte-padrao" for="senha">Senha:</label><br>
+				<input style="margin-bottom:10px; width:100%" type="password" id="senha" name="senha" required><br><br>
 		
 				<div class="provider" style="width:100%">
 					<input class="fonte-padrao" type="submit" value="Login">
